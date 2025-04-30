@@ -1,0 +1,15 @@
+[project]
+name = "deep-research-py"
+version = "0.0.1"
+description = "Forked and adapted from the original project dzhng/deep-research."
+authors = [
+    {name = "umar-anzar", email = "omer.anzar2@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "firecrawl-py>=2.4.0",
+    "langchain-text-splitters>=0.3.8",
+    "openai>=1.76.0",
+    "tiktoken>=0.9.0",
+]

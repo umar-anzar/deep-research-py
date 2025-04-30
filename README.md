@@ -1,69 +1,14 @@
-# Open Deep Research
+# Deep Research (Python)
 
-An AI-powered research assistant that performs iterative, deep research on any topic by combining search engines, web scraping, and large language models.
+An AI-powered research assistant that performs iterative, deep research on any topic using search engines, web scraping, and large language models — now in **Python**.
 
-The goal of this repo is to provide the simplest implementation of a deep research agent - e.g. an agent that can refine its research direction over time and deep dive into a topic. Goal is to keep the repo size at <500 LoC so it is easy to understand and build on top of.
+> ⚡ **This project is a direct conversion of [@dzhng’s deep-research](https://github.com/dzhng/deep-research) from Node.js/TypeScript to Python.**
 
-If you like this project, please consider starring it and giving me a follow on [X/Twitter](https://x.com/dzhng). This project is sponsored by [Aomni](https://aomni.com).
+This is just a port of the original codebase into Python.  
+The goal is to make the core logic easier for Python developers to read, run, and integrate into their own projects without the need for an API layer or backend setup.
 
-## How It Works
-
-```mermaid
-flowchart TB
-    subgraph Input
-        Q[User Query]
-        B[Breadth Parameter]
-        D[Depth Parameter]
-    end
-
-    DR[Deep Research] -->
-    SQ[SERP Queries] -->
-    PR[Process Results]
-
-    subgraph Results[Results]
-        direction TB
-        NL((Learnings))
-        ND((Directions))
-    end
-
-    PR --> NL
-    PR --> ND
-
-    DP{depth > 0?}
-
-    RD["Next Direction:
-    - Prior Goals
-    - New Questions
-    - Learnings"]
-
-    MR[Markdown Report]
-
-    %% Main Flow
-    Q & B & D --> DR
-
-    %% Results to Decision
-    NL & ND --> DP
-
-    %% Circular Flow
-    DP -->|Yes| RD
-    RD -->|New Context| DR
-
-    %% Final Output
-    DP -->|No| MR
-
-    %% Styling
-    classDef input fill:#7bed9f,stroke:#2ed573,color:black
-    classDef process fill:#70a1ff,stroke:#1e90ff,color:black
-    classDef recursive fill:#ffa502,stroke:#ff7f50,color:black
-    classDef output fill:#ff4757,stroke:#ff6b81,color:black
-    classDef results fill:#a8e6cf,stroke:#3b7a57,color:black
-
-    class Q,B,D input
-    class DR,SQ,PR process
-    class DP,RD recursive
-    class MR output
-    class NL,ND results
-```
+> [!NOTE]  
+> The `generate_text` function is introduced **only in this repo** and is exclusively for report generation in markdown format. Generating reports as JSON results in lower quality, while using markdown text directly yields better results.
 
 ## Features
 
@@ -76,23 +21,30 @@ flowchart TB
 
 ## Requirements
 
-- Node.js environment
+- Python environment
 - API keys for:
   - Firecrawl API (for web search and content extraction)
-  - OpenAI API (for o3 mini model)
+  - OpenAI API
 
 ## Setup
 
-### Node.js
+### Python
 
 1. Clone the repository
-2. Install dependencies:
+2. Install dependencies using requirements.txt or using uv python:
 
 ```bash
-npm install
+pip install -r requirements.txt
 ```
 
-3. Set up environment variables in a `.env.local` file:
+**OR**
+
+```bash
+uv sync  # Only if you're using [uv](https://github.com/astral-sh/uv) as your Python package manager
+
+```
+
+3. Set up environment variables in a `.env` file:
 
 ```bash
 FIRECRAWL_KEY="your_firecrawl_key"
@@ -102,36 +54,30 @@ FIRECRAWL_KEY="your_firecrawl_key"
 OPENAI_KEY="your_openai_key"
 ```
 
-To use local LLM, comment out `OPENAI_KEY` and instead uncomment `OPENAI_ENDPOINT` and `OPENAI_MODEL`:
-
-- Set `OPENAI_ENDPOINT` to the address of your local server (eg."http://localhost:1234/v1")
-- Set `OPENAI_MODEL` to the name of the model loaded in your local server.
-
-### Docker
-
-1. Clone the repository
-2. Rename `.env.example` to `.env.local` and set your API keys
-
-3. Run `docker build -f Dockerfile`
-
-4. Run the Docker image:
+To use Google Gemini, set the API key in `OPENAI_KEY` and the endpoint:
 
 ```bash
-docker compose up -d
+OPENAI_KEY="your_gemini_api_key"
+OPENAI_ENDPOINT="https://generativelanguage.googleapis.com/v1beta/openai/"
+MODEL="gemini-2.0-flash-lite"
 ```
 
-5. Execute `npm run docker` in the docker service:
+
+To use local LLM like ollama:
 
 ```bash
-docker exec -it deep-research npm run docker
+OPENAI_KEY=""
+OPENAI_ENDPOINT="http://localhost:11434/v1"
+MODEL="llama2"
 ```
+
 
 ## Usage
 
 Run the research assistant:
 
 ```bash
-npm start
+python main.py
 ```
 
 You'll be prompted to:
@@ -148,32 +94,11 @@ The system will then:
 3. Recursively explore deeper based on findings
 4. Generate a comprehensive markdown report
 
-The final report will be saved as `report.md` or `answer.md` in your working directory, depending on which modes you selected.
-
 ### Concurrency
 
 If you have a paid version of Firecrawl or a local version, feel free to increase the `ConcurrencyLimit` by setting the `CONCURRENCY_LIMIT` environment variable so it runs faster.
 
 If you have a free version, you may sometimes run into rate limit errors, you can reduce the limit to 1 (but it will run a lot slower).
-
-### DeepSeek R1
-
-Deep research performs great on R1! We use [Fireworks](http://fireworks.ai) as the main provider for the R1 model. To use R1, simply set a Fireworks API key:
-
-```bash
-FIREWORKS_KEY="api_key"
-```
-
-The system will automatically switch over to use R1 instead of `o3-mini` when the key is detected.
-
-### Custom endpoints and models
-
-There are 2 other optional env vars that lets you tweak the endpoint (for other OpenAI compatible APIs like OpenRouter or Gemini) as well as the model string.
-
-```bash
-OPENAI_ENDPOINT="custom_endpoint"
-CUSTOM_MODEL="custom_model"
-```
 
 ## How It Works
 
